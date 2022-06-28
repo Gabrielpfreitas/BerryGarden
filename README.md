@@ -1,6 +1,7 @@
 # CloudBerry
 
-![mulberryfinal](https://user-images.githubusercontent.com/56432521/167446835-c9fd39ba-cffd-45f8-a8d1-4a7fde9e9dea.png)
+![cloudberry](https://user-images.githubusercontent.com/56432521/176161635-f11d411b-6af3-46c0-a4ef-3e44881468e1.png)
+
 
 Repository for functions used within the Atmospheric Science Unit of the Department of Environmental Science of Stockholm University
 
