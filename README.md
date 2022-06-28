@@ -7,8 +7,8 @@ Repository for functions used within the Atmospheric Science Unit of the Departm
 
 Function group list:
 
-AuxBerry (Auxiliary functions)
+AuxBerry   (Auxiliary functions)
 
 CloudBerry (Counterflow virtual impactor (CVI) functions)
 
-MulBerry (Multiparameter Bioaerosol Spectrometer (MBS) functions)
+MulBerry   (Multiparameter Bioaerosol Spectrometer (MBS) functions)
