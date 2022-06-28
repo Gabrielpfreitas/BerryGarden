@@ -1,4 +1,4 @@
-# MULBERRY PROJECT - Multiparameter Bioaerosol Spectrometer Analysis Consortium
+# CloudBerry
 
 ![mulberryfinal](https://user-images.githubusercontent.com/56432521/167446835-c9fd39ba-cffd-45f8-a8d1-4a7fde9e9dea.png)
 
