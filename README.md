@@ -5,4 +5,8 @@
 
 Repository for functions used within the Atmospheric Science Unit of the Department of Environmental Science of Stockholm University
 
+Function group list:
 
+AuxBerry (Auxiliary functions)
+
+MulBerry (Multiparameter Bioaerosol Spectrometer (MBS) functions)
