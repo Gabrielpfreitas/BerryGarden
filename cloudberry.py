@@ -1,60 +1,9 @@
 ###########################################
-# Auxiliary functions for the MBS analysis#
+# Functions           for the CVI analysis#
 import pandas as pd
 import tqdm
 import glob2
 import numpy as np
-
-def readEBAS(path=None):
-
-    table = pd.read_table(path)
-        
-    k=2
-    
-    for s in table.iloc[:,0]:
-        
-        if '1 1' == s:
-            
-            p = k
-
-        if 'starttime' in s:
-                
-            break
-            
-        k=k+1
-
-    reference = pd.to_datetime(table.iloc[p-1][0][:10])
-    
-    # Fix duplicate names
-
-    names = table.iloc[k-2][0].split(' ')
-    
-    b = [x for x in names if names.count(x) > 1]
-        
-    i = 0
-    for nb in list(set(b)):
-        for l,name in enumerate(names):
-            if nb == name:
-                if i >= 1:
-                    names[l] = name+'_'
-                    i = 0
-                    continue
-                i=i+1
-    #
-    
-    
-    
-    df = pd.read_fwf(path,infer_nrows=300,skiprows=k,names=names)
-    
-    df = df.astype('float')
-    
-    df.starttime = pd.to_datetime(reference)+pd.to_timedelta(df.starttime.astype('str')+'D')
-    
-    df.endtime = pd.to_datetime(reference)+pd.to_timedelta(df.endtime.astype('str')+'D')
-    
-    df.index = df.starttime+(df.starttime-df.endtime)/2
-    
-    return df
 
 def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
     
