@@ -9,4 +9,6 @@ Function group list:
 
 AuxBerry (Auxiliary functions)
 
+CloudBerry (Counterflow virtual impactor (CVI) functions)
+
 MulBerry (Multiparameter Bioaerosol Spectrometer (MBS) functions)
