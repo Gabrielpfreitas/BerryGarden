@@ -521,7 +521,7 @@ def getparticles(path=None,gamma=None):
     
     fl['AsymLR%']  = np.nan
 
-    for file in tqdm.tqdm(tc_files):
+    for file in tqdm.tqdm(files):
         
         df = pd.read_hdf(file)[['Size','AsymLR%','PeakMeanR','MeanR','Measured','Total']]
         
