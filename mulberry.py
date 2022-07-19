@@ -485,7 +485,7 @@ def create_gamma_file(path=None,path_gamma=None):
         
         
         
-def getparticles(path=None):
+def getparticles(path=None,gamma=None):
     
     cv = ['XE1_'+str(x) for x in range(1,9)]
     
