@@ -485,11 +485,77 @@ def create_gamma_file(path=None,path_gamma=None):
         
         
         
+def getparticles(path=None):
+    
+    cv = ['XE1_'+str(x) for x in range(1,9)]
+    
+    files = glob2.glob(path+'*')
+    
+    fl = pd.DataFrame()
+    
+    tc = pd.DataFrame()
+    
+    for file in tqdm.tqdm(tc_files):
+        
+        fl_ = pd.read_hdf(file,columns=['XE1_'+str(x) for x in range(1,9)])
+        
+        fl_[cv] = fl_[cv]-gamma.iloc[:,16:24].mean().values
+        
+        fl_[fl_ < 0] = np.nan
+        
+        fl_ = fl_.dropna(axis = 0, how = 'all')
+        
+        fl_ = fl_.replace(np.nan,0)
+        
+        fl = fl.append(fl_)
+        
+        tc = tc.append(pd.read_hdf(file,columns=['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']))
+    
+    fl['count'] = 1
+    
+    tc['count'] = 1
+    
+    fl['Size']  = np.nan
+    
+    fl['PeakMeanR']  = np.nan
+    
+    fl['AsymLR%']  = np.nan
+
+    for file in tqdm.tqdm(tc_files):
+        
+        df = pd.read_hdf(file)[['Size','AsymLR%','PeakMeanR','MeanR','Measured','Total']]
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'Size'] = df[df.index.isin(fl.index)]['Size']
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'AsymLR%'] = df[df.index.isin(fl.index)]['AsymLR%']
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'PeakMeanR'] = df[df.index.isin(fl.index)]['PeakMeanR']
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'MeanR'] = df[df.index.isin(fl.index)]['MeanR']
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'Measured'] = df[df.index.isin(fl.index)]['Measured']
+        
+        fl.loc[df[df.index.isin(fl.index)].index,'Total'] = df[df.index.isin(fl.index)]['Total']
+    
+    fl['Group'] = ''
+    
+    for i,channel in enumerate(cv):
+        fl.loc[fl[channel] > gamma.iloc[:,24:36].mean().values[i]-gamma.iloc[:,16:24].mean().values[i],'Group']  += 'ABCDEFGH'[i]
+        
+    return fl, tc
         
         
         
-        
-        
+def pbaptree(df=None):
+    
+    #ALl particles with 9sigma threshold in B
+    pbap = df[['B' in Group for Group in df.Group]]
+
+    #All those whose highest signal is B
+    pbap = pbap[pbap.loc[:,cv].idxmax(axis=1) == 'XE1_2']
+    
+    #
+    return pbap
         
         
         
