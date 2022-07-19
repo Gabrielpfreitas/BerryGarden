@@ -495,7 +495,7 @@ def getparticles(path=None):
     
     tc = pd.DataFrame()
     
-    for file in tqdm.tqdm(tc_files):
+    for file in tqdm.tqdm(files):
         
         fl_ = pd.read_hdf(file,columns=['XE1_'+str(x) for x in range(1,9)])
         
