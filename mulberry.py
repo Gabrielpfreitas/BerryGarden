@@ -552,7 +552,7 @@ def pbaptree(df=None):
     pbap = df[['B' in Group for Group in df.Group]]
 
     #All those whose highest signal is B
-    pbap = pbap[pbap.loc[:,cv].idxmax(axis=1) == 'XE1_2']
+    pbap = pbap[pbap.loc[:,['XE1_'+str(x) for x in range(1,9)]].idxmax(axis=1) == 'XE1_2']
     
     #
     return pbap
