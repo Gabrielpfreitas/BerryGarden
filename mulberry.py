@@ -497,7 +497,7 @@ def getparticles(path=None):
     
     for file in tqdm.tqdm(files):
         
-        fl_ = pd.read_hdf(file,columns=['XE1_'+str(x) for x in range(1,9)])
+        fl_ = pd.read_hdf(file)[['XE1_'+str(x) for x in range(1,9)]]
         
         fl_[cv] = fl_[cv]-gamma.iloc[:,16:24].mean().values
         
@@ -509,7 +509,7 @@ def getparticles(path=None):
         
         fl = fl.append(fl_)
         
-        tc = tc.append(pd.read_hdf(file,columns=['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']))
+        tc = tc.append(pd.read_hdf(file))[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']]
     
     fl['count'] = 1
     
