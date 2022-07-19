@@ -489,7 +489,7 @@ def getparticles(path=None):
     
     cv = ['XE1_'+str(x) for x in range(1,9)]
     
-    files = glob2.glob(path+'*')
+    files = glob2.glob(path+'MBS*')
     
     fl = pd.DataFrame()
     
