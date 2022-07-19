@@ -5,6 +5,7 @@
 
 import numpy as np
 import pandas as pd
+import juniperberry as jb
 import glob2
 import tqdm
 import matplotlib.pyplot as plt
@@ -14,24 +15,13 @@ from sklearn.cluster import KMeans
 
 # PRE PROCESS MBS # 
 
-def processMBS(path_raw=None, particles=None, path_hdf=None, min_col = False, use_lut=None, dum_row = 33, FL_T = 'daily', sleep_skip = None, size_T = 0.8):
+def processMBS(path_raw=None, path_hdf=None, min_col = True, use_lut=None, dum_row = 33, size_T = 0.8):
     
-    print('MBS raw data processor (Windows environment) v1.01b')
-    print('\n\n\n\n')
-    print('(use sleep_skip = 1 to skip this messages)')
-    if sleep_skip != None:
-        sleep_skip = 0
-    else:
-        sleep_skip = 1
-    sleep(2*sleep_skip)
     clear_output()
 
     if path_raw == None:
         raise ValueError('Raw files path not given, use path_raw = ')
-
-    if (particles != 'C')&(particles != 'F'):
-        raise ValueError('Please select with argument "particles" to preprocess all coarse (C) or only fluorescent (F) particles')
-
+        
     if path_hdf == None:
         print('Output not given, H5 files will be written in raw folder')
 
@@ -41,10 +31,7 @@ def processMBS(path_raw=None, particles=None, path_hdf=None, min_col = False, us
         print('Embedded LUT overriden, using external LUT')
     if dum_row == 33:
         print('Dum row has not been overriden, using 33')
-    if FL_T == 'daily':
-        print('Calculating fluorescence threshold daily')
-    else:
-        print('Calculating fluorescence threshold per file')
+        
     if size_T == 0.8:
         print('Selecting particles above 0.8 µm')
     else:
@@ -69,15 +56,17 @@ def processMBS(path_raw=None, particles=None, path_hdf=None, min_col = False, us
 
     print('Starting processing in ')
     print('3')
-    sleep(1*sleep_skip)
+    sleep(1)
     print('2')
-    sleep(1*sleep_skip)
+    sleep(1)
     print('1')
-    sleep(1*sleep_skip)
+    sleep(1)
     clear_output()
 
     d = 0
     for day in days:
+        
+        jb.printc('Working on day: '+day)
         files = glob2.glob(path_raw+'*'+day+'*.csv')
 
         df = pd.DataFrame()
@@ -93,7 +82,7 @@ def processMBS(path_raw=None, particles=None, path_hdf=None, min_col = False, us
                                                                     'SkewL', 'SkewR', 'XE1_1', 'XE1_2', 'XE1_3', 'XE1_4', \
                                                                     'XE1_5', 'XE1_6', 'XE1_7', 'XE1_8'])
                 else:
-                    df1 = pd.read_csv(files[i], skiprows=dum_row, usecols = ['Time(ms)', 'FT', 'Total', 'Measured', 'AsymLR%', \
+                    df1 = pd.read_csv(files[i], skiprows=dum_row, usecols = ['Time(ms)', 'FT', 'Size','Total', 'Measured', 'AsymLR%', \
                                                                     'MeanR','PeakMeanR', 'XE1_1', 'XE1_2', 'XE1_3', 'XE1_4', \
                                                                     'XE1_5', 'XE1_6', 'XE1_7', 'XE1_8'])
             else:
@@ -117,45 +106,37 @@ def processMBS(path_raw=None, particles=None, path_hdf=None, min_col = False, us
             fp.close()
 
             df1['time'] = starttime + pd.to_timedelta(df1['Time(ms)'], unit='ms')
+            
             df1.drop(['Time(ms)'], axis=1, inplace=True) #
+            
             df1.set_index('time', inplace=True)
-            df1['FL']=np.sum(df1.iloc[:,0:7],1)
-
-            ft = ft.append(df1[df1.FT == 1])
-            if particles == 'F':
-                if FL_T != 'daily':
-                    df1 = df1[df1.FL >= df1[df1.FT == 1]['FL'].std()*3]
-            df = df.append(df1) 
-
-
-        if use_lut != None:
-            lut = pd.read_csv(use_lut,sep='\t')
-            lut['Size (um)'] = lut['Size (um)'].round(3)
-            df['Size'] = df['LASER'].map(lut['Size (um)'])
-            df = df.drop(df['LASER'],axis=1)
-        if size_T == None:
-            df = df[df.Size >= 0.8]
-        else:
-            df = df[df.Size >= size_T]
-        df_c = df.copy()
-        df_c = df_c.loc[:,['XE1_1','XE1_2','XE1_3','XE1_4','XE1_5','XE1_6','XE1_7','XE1_8','Size','MeanR','MeanL','AsymLR%','PeakMeanR','PeakMeanL','Total','Measured','FL']]
-        if particles == 'F':
-            if FL_T == 'daily':
-                df = df[df.FL >= ft['FL'].std()*3]
-        df['count'] = 1
-        df_c['count'] = 1
+            
+            df1 = df1[df1.FT == 0]
         
-        print('Saving file.')
-        if particles == 'F':
-            if path_hdf == None:
-                df.to_hdf(path_raw+'MBS_FL_'+day+'.h5','key_to_store')
-            else:
-                df.to_hdf(path_hdf+'MBS_FL_'+day+'.h5','key_to_store')
-        if path_hdf == None:
-            df_c.to_hdf(path_raw+'MBS_TC_'+day+'.h5','key_to_store')
-        else:
-            df_c.to_hdf(path_hdf+'MBS_TC_'+day+'.h5','key_to_store')    
+            df1 = df1.drop('FT',axis=1) 
+            
+            if use_lut != None:
+            
+                lut = pd.read_csv(use_lut,sep='\t')
 
+                lut['Size (um)'] = lut['Size (um)'].round(3)
+
+                df1['Size'] = df1['LASER'].map(lut['Size (um)'])
+
+                df1 = df1.drop(df1['LASER'],axis=1)
+            
+            df1 = df1[df1.Size >= size_T]
+            
+            df = df.append(df1) 
+      
+        df['count'] = 1
+        
+        jb.printc('Saving file')
+        if path_hdf == None:
+            df.to_hdf(path_raw+'MBS_'+day+'.h5','key_to_store')
+        else:
+            df.to_hdf(path_hdf+'MBS_'+day+'.h5','key_to_store')    
+        jb.printc('Finished working on this day, moving on...')
         clear_output()
     print('Pre-processing completed.')
         
