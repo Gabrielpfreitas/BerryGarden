@@ -13,8 +13,10 @@ from IPython.display import clear_output
 from sklearn.cluster import KMeans
 import os
 
-def printc(s=None,os_n = 1)
+def printc(s=None,os_n = 1, skip=False):
         
+    if skip == False:
+    
         os.write(os_n, (s+'\n').encode())
         
         

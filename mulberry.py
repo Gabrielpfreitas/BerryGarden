@@ -462,7 +462,45 @@ def hist_to_plot(df=None,color=None,bins=np.logspace(1.6,3.2)/100):
 
         
         
-        
+def create_gamma_file(path=None,path_gamma=None):
+    
+    files = glob2.glob(path+'*.csv')
+
+    drow = 33
+
+    TD = pd.DataFrame(index=np.arange(0,len(files),1),columns=['XE1_'+str(x)+'ME' for x in range(1,9)]+
+                    ['XE1_'+str(x)+'SD' for x in range(1,9)]+['XE1_'+str(x)+'3S' for x in range(1,9)]+
+                    ['XE1_'+str(x)+'9S' for x in range(1,9)]+['T ME','T SD','T 3S','T 9S'])
+    import os
+    import time
+    for i in np.arange(0,len(TD.index),1).tolist():
+
+        jb.printc('Working on file: '+files[i]+' which is file number '+str(i+1)+' out of '+str(len(files)+1))
+
+        df_ = pd.read_csv(files[i],skiprows=drow,usecols = ['FT']+['XE1_'+str(x) for x in range(1,9)],engine='python')
+
+        df_ = df_[df_.FT == 1]
+
+        for CH in ['XE1_'+str(x) for x in range(1,9)]:
+            
+            TD.loc[i,CH+'ME'] = df_[CH].mean()
+            
+            TD.loc[i,CH+'SD'] = df_[CH].std()
+            
+            TD.loc[i,CH+'3S'] = df_[CH].std()*3
+
+            TD.loc[i,CH+'9S'] = df_[CH].std()*9
+
+            TD.loc[i,'T ME']  = df_.loc[:,['XE1_'+str(x) for x in range(1,9)]].sum(axis=1).mean()
+
+            TD.loc[i,'T SD']  = df_.loc[:,['XE1_'+str(x) for x in range(1,9)]].sum(axis=1).std()   
+
+            TD.loc[i,'T 3S']  = df_.loc[:,['XE1_'+str(x) for x in range(1,9)]].sum(axis=1).std()*3
+
+            TD.loc[i,'T 9S']  = df_.loc[:,['XE1_'+str(x) for x in range(1,9)]].sum(axis=1).std()*9 
+
+        TD.to_csv(path_gamma+'gamma.csv')
+        jb.printc('Finishing work on file: '+files[i])
         
         
         
