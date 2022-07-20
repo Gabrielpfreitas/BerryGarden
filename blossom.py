@@ -13,6 +13,7 @@ import cloudberry as cb
 import juniperberry as jb
 import auxberry as ab
 import tqdm
+from IPython.display import clear_output
 jb.printc('Packages initiliazed')
 
 #Open console

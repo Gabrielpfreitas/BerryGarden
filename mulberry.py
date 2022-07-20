@@ -577,7 +577,7 @@ def create_lut(df=None):
     
     cmap = plt.get_cmap('cet_glasbey_hv',len(lut.index))
     
-    return lut, cmap
+    return {'lut':lut,'cmap':cmap}
         
 def class_time(df=None,time=None,lut=None,th=1):
     
@@ -680,7 +680,7 @@ def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000):
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                      box.width, box.height * 0.9])
         
-def corr_class(df=None,time=None):
+def corr_class(df=None,time=None,th=100):
 
     df = df[df.Group != '']
     
@@ -688,11 +688,31 @@ def corr_class(df=None,time=None):
     
     for Group in corr.columns:
         
-        corr[Group] = df[df.Group == Group]['count'].resample(time).sum()
+        if df[df.Group == Group]['count'].sum() > th:
+            
+            corr[Group] = df[df.Group == Group]['count'].resample(time).sum()
         
     corr = corr.corr()
     
-    return corr        
+    return corr
+
+def corr_plot(corr=None,ax=None):
+    
+    mesh = plt.pcolormesh(corr.index,corr.columns,corr.T,vmin=-1,vmax=1,cmap='RdYlGn',shading='nearest')
+
+
+    plt.gca().add_patch(plt.Polygon(\
+        [[-0.5,-0.5],[len(corr.columns)-0.5,len(corr.columns)-0.5],[len(corr.columns)-0.5,-0.5]], \
+        color='white'))
+    k = 0
+    for x in corr.columns:
+        for y in corr.index[k:]:
+               plt.text(x=x,y=y,s=str(corr.loc[x,y])[0:4],fontsize=8,ha='center')
+        k = k+1
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+    plt.xticks(rotation=90)
         
         
         
