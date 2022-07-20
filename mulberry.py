@@ -485,7 +485,7 @@ def create_gamma_file(path=None,path_gamma=None):
         
         
         
-def getparticles(path=None,gamma=None):
+def getparticles(path=None,gamma=None,ignore_coarse=False):
     
     cv = ['XE1_'+str(x) for x in range(1,9)]
     
@@ -509,11 +509,15 @@ def getparticles(path=None,gamma=None):
         
         fl = fl.append(fl_)
         
-        tc = tc.append(pd.read_hdf(file))[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']]
+        if ignore_coarse == False:
+            
+            tc = tc.append(pd.read_hdf(file))[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']]
     
     fl['count'] = 1
     
-    tc['count'] = 1
+    if ignore_coarse == False:
+            
+        tc['count'] = 1
     
     fl['Size']  = np.nan
     
@@ -541,7 +545,7 @@ def getparticles(path=None,gamma=None):
     
     for i,channel in enumerate(cv):
         fl.loc[fl[channel] > gamma.iloc[:,24:36].mean().values[i]-gamma.iloc[:,16:24].mean().values[i],'Group']  += 'ABCDEFGH'[i]
-        
+    
     return fl, tc
         
         
@@ -558,7 +562,17 @@ def pbaptree(df=None):
     return pbap
         
         
-        
+def create_lut(df=None):
+    
+    from colorcet.plotting import swatch, swatches, candy_buttons
+    
+    lut = pd.DataFrame(index=df.Group.unique(),columns=['CMAP N'])
+
+    lut['CMAP N'] = np.arange(0,len(lut.index),1)
+    
+    cmap = plt.get_cmap('cet_glasbey_hv',len(lut.index))
+    
+    return lut, cmap
         
         
         
