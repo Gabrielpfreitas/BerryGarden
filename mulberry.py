@@ -574,7 +574,39 @@ def create_lut(df=None):
     
     return lut, cmap
         
+def class_time(df=None,time=None,lut=None,th=1):
+    
+    #create bottom vector
+    bottom        = df['count'].resample(time).sum()
+    
+    bottom.loc[:] = 0
+    
+    #create sum vector
+    
+    total        = df[df.Group != '']['count'].resample(time).sum()
+    
+    for i,Group in tqdm.tqdm(enumerate(np.sort(df[df['Group'] != ''].Group.unique()))):
         
+        if ((df[df.Group == Group]['count'].resample(time).sum()/total)*1e2).max() > th:
+        
+            y = (df[df.Group == Group]['count'].resample(time).sum()/total)*1e2
+
+            y = y.replace(np.nan,0)
+
+            plt.bar(x=y.index,\
+                    height=y,\
+                    bottom=bottom,\
+                    color=lut['cmap'](lut['lut'].loc[Group].values[0]),\
+                    width=pd.to_timedelta(time),\
+                    align='edge')
+
+            bottom    = bottom + y    
+    
+    plt.xlim(y.index[0],y.index[-1])
+
+    plt.ylim(0,100)
+
+    plt.ylabel('Composition to \n Highly Fluorescent particles (%)')
         
         
         
