@@ -12,6 +12,7 @@ import glob2
 import cloudberry as cb
 import juniperberry as jb
 import auxberry as ab
+import tqdm
 jb.printc('Packages initiliazed')
 
 #Open console
