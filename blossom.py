@@ -6,7 +6,6 @@ sys.path.append('C:\\Users\\GabrielFreitas\\Desktop\\Python\\CloudBerry\\')
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import mulberry as mb
-import auxiliary as aux
 import pandas as pd
 import numpy as np
 import glob2
@@ -15,7 +14,10 @@ import juniperberry as jb
 import auxberry as ab
 jb.printc('Packages initiliazed')
 
+#Open console
+# %qtconsole
 
+jb.printc('Console opened')
 # mpl.rc('font',family='consolas')
 mpl.rc('font',size=14)
 jb.printc('Matplotlib common commands given')

@@ -133,9 +133,9 @@ def processMBS(path_raw=None, path_hdf=None, min_col = True, use_lut=None, dum_r
         
         jb.printc('Saving file')
         if path_hdf == None:
-            df.to_hdf(path_raw+'MBS_'+day+'.h5','key_to_store')
+            df.to_hdf(path_raw+'MBS_'+day+'.h5','df_key', format='t', data_columns=True)
         else:
-            df.to_hdf(path_hdf+'MBS_'+day+'.h5','key_to_store')    
+            df.to_hdf(path_hdf+'MBS_'+day+'.h5','df_key', format='t', data_columns=True)
         jb.printc('Finished working on this day, moving on...')
         clear_output()
     print('Pre-processing completed.')
