@@ -513,6 +513,9 @@ def getparticles(path=None,gamma=None,ignore_coarse=False):
             
             tc = tc.append(pd.read_hdf(file))[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']]
     
+    clear_output()
+    
+    
     fl['count'] = 1
     
     if ignore_coarse == False:
@@ -545,6 +548,8 @@ def getparticles(path=None,gamma=None,ignore_coarse=False):
     
     for i,channel in enumerate(cv):
         fl.loc[fl[channel] > gamma.iloc[:,24:36].mean().values[i]-gamma.iloc[:,16:24].mean().values[i],'Group']  += 'ABCDEFGH'[i]
+    
+    clear_output()
     
     return fl, tc
         
@@ -675,7 +680,19 @@ def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000):
         ax.set_position([box.x0, box.y0 + box.height * 0.1,
                      box.width, box.height * 0.9])
         
+def corr_class(df=None,time=None):
+
+    df = df[df.Group != '']
+    
+    corr = pd.DataFrame(index=df['count'].resample(time).sum().index,columns=np.sort(df[df['Group'] != ''].Group.unique()))
+    
+    for Group in corr.columns:
         
+        corr[Group] = df[df.Group == Group]['count'].resample(time).sum()
+        
+    corr = corr.corr()
+    
+    return corr        
         
         
         
