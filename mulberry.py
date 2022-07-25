@@ -532,17 +532,19 @@ def getparticles(path=None,gamma=None,ignore_coarse=False):
         
         df = pd.read_hdf(file)[['Size','AsymLR%','PeakMeanR','MeanR','Measured','Total']]
         
-        fl.loc[df[df.index.isin(fl.index)].index,'Size'] = df[df.index.isin(fl.index)]['Size']
+        df = df[df.index.isin(fl.index)]
         
-        fl.loc[df[df.index.isin(fl.index)].index,'AsymLR%'] = df[df.index.isin(fl.index)]['AsymLR%']
+        fl.loc[df.index,'Size'] = df['Size']
         
-        fl.loc[df[df.index.isin(fl.index)].index,'PeakMeanR'] = df[df.index.isin(fl.index)]['PeakMeanR']
+        fl.loc[df.index,'AsymLR%'] = df['AsymLR%']
         
-        fl.loc[df[df.index.isin(fl.index)].index,'MeanR'] = df[df.index.isin(fl.index)]['MeanR']
+        fl.loc[df.index,'PeakMeanR'] = df['PeakMeanR']
         
-        fl.loc[df[df.index.isin(fl.index)].index,'Measured'] = df[df.index.isin(fl.index)]['Measured']
+        fl.loc[df.index,'MeanR'] = df['MeanR']
         
-        fl.loc[df[df.index.isin(fl.index)].index,'Total'] = df[df.index.isin(fl.index)]['Total']
+        fl.loc[df.index,'Measured'] = df['Measured']
+        
+        fl.loc[df.index,'Total'] = df['Total']
     
     fl['Group'] = ''
     
