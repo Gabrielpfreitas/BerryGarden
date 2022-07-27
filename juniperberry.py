@@ -33,7 +33,7 @@ def sel_rem(to_do='Sel',df=None,date1=None,date2=None):
     
     if to_do == 'Sel':
         
-        df = df[(df.index > date1)|(df.index < date2)]
+        df = df[(df.index > date1)&(df.index < date2)]
     
     if to_do == 'Rem':
         

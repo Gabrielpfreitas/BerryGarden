@@ -56,128 +56,23 @@ def readEBAS(path=None):
     
     return df
 
-def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
+def readMAAP(path=None):
+    header = 'EPOCH,DOY,F1_A31,BaR_A31,ZSSAR_A31,P_A31,BacR_A31,Ff_A31,IfR_A31,IpR_A31,IrR_A31,Is1_A31,Is2_A31,L_A31,Pd1_A31,Pd2_A31,Q_A31,Qt_A31,T1_A31,T2_A31,T3_A31,XR_A31,ZIrR_A31,ZPARAMETERS_A31,ZSPOT_A31'
     
-    dum_row = 7
+    header = header.split(',')
     
-    dum_row2 = 10
+    maap_list = glob2.glob(path+'*')
     
-    repdict = {'On': 1., 'Off': 0.}
-        
-    gcvi = pd.DataFrame()
+    maap = pd.DataFrame()
     
-    if startdate == None:
+    for item in maap_list:
         
-        folder_list = glob2.glob(path+'*')
+        maap_ = pd.read_csv(item,names=header,skiprows=7)
+        
+        maap = maap.append(maap_)
+        
+    maap = maap.iloc[:,-4]
     
-    else:
-        
-        folder_list = []
-        
-        times = pd.date_range(startdate,enddate,freq='1d')
-       
-        for t in times:
-            
-            folder_list_date = glob2.glob(path+'*'+t.strftime("%y%m%d"))
-            
-            folder_list = folder_list + folder_list_date
-            
-    for k,folder in tqdm.tqdm(enumerate(folder_list)):
-         
-        file_list = glob2.glob(folder+'\\*' + 'GCVI*' + '.dat')
-        
-        file_list.sort()
-        
-        df = pd.DataFrame()
-        
-        for i,file in enumerate(file_list):
-            
-            df1 = pd.read_csv(file, sep="\s+", skiprows=dum_row, usecols = ['HR:MN:SC', 'visiblty', 'cvi_stat',\
-            'compstat', 'vac_stat', 'blwrstat', 'humidity'])
-            
-            starttime = pd.to_datetime(times[k],format='%d/%m/%Y %H:%M:%S\n') 
-            
-            df1['time'] = starttime + pd.to_timedelta(df1['HR:MN:SC'])
-            
-            df1.drop(['HR:MN:SC'], axis=1, inplace=True) 
-            
-            df1.set_index('time', inplace=True) 
-            
-            df = df.append(df1)            
-            
-
-        df['compstat'] = df['compstat'].map(repdict)
-        
-        df['vac_stat'] = df['vac_stat'].map(repdict)
-        
-        df['blwrstat'] = df['blwrstat'].map(repdict)
-        
-        df['cvi_stat'] = df['cvi_stat'].map(repdict)
-        
-        df['sum_stat'] = (df.cvi_stat + df.compstat + df.vac_stat + df.blwrstat)
-        
-        df['cloud']    = np.nan
-        
-        df.loc[df[df.sum_stat == 4].index,'cloud'] = 1
-        
-        df.loc[df[(df.sum_stat > 0)&(df.sum_stat < 4)].index,'cloud'] = 0.5
-        
-        df.loc[df[df.sum_stat == 0].index,'cloud'] = 0
-        
-        df = df.drop(['cvi_stat', 'compstat','vac_stat', 'blwrstat', 'sum_stat'],axis=1)
-        
-        if resample != None:
-            
-            df = df.resample(resample).median()
-            
-        
-
-        #ENRICHMENT FACTOR 
-        
-        file_list = glob2.glob(folder+'\\' + 'CVI*' + '.dat')
-        
-        file_list.sort()
-        
-        ef = pd.DataFrame()
-        
-        for i, file in enumerate(file_list):
-            
-            ef1 = pd.read_csv(file, sep="\s+", skiprows=dum_row2, usecols = ['HR:MN:SC', 'tosmflow','airspeed','cnt_flow'])
-            
-            starttime = pd.to_datetime(times[k],format='%d/%m/%Y %H:%M:%S\n') 
-            
-            ef1['time'] = starttime + pd.to_timedelta(ef1['HR:MN:SC'])
-            
-            ef1.drop(['HR:MN:SC'], axis=1, inplace=True) 
-            
-            ef1.set_index('time', inplace=True) 
-            
-            ef = ef.append(ef1)
-            
-        if resample != None:
-            
-            ef = ef.resample(resample).median()
-        
-        ef['EF']=(1.67e-5*ef['airspeed'])/(ef['tosmflow']/(60*1000))
-        
-        ef = ef.replace([np.inf, -np.inf, np.nan], 0)
-            
-        df = df.join(ef)  
-        
-        df = df.drop(['tosmflow','airspeed','cnt_flow'],axis=1)
-        
-        gcvi = gcvi.append(df)      
+    maap.index = pd.to_datetime(maap.index)
     
-    cs = gcvi.cloud
-    
-    cs = cs.replace(0.5,0)
-    
-    CE = ((cs[1:]-cs[:-1].values)[(cs[1:]-cs[:-1].values)!=0]).dropna()
-    
-    CEt = pd.DataFrame(columns=['S','E'])
-    
-    CEt.S = CE[CE == 1].index; CEt.E = CE[CE == -1].index
-    
-    CEt['D'] = CE[CE == -1].index-CE[CE == 1].index
-    
-    return gcvi, CEt
+    return maap
