@@ -1,4 +1,4 @@
-# CloudBerry
+# BerryGarden
 
 ![cloudberry](https://user-images.githubusercontent.com/56432521/176161635-f11d411b-6af3-46c0-a4ef-3e44881468e1.png)
 
