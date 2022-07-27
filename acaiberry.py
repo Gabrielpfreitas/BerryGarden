@@ -4,6 +4,7 @@ import pandas as pd
 import tqdm
 import glob2
 import numpy as np
+import datetime as dt
 
 def readEBAS(path=None):
 
@@ -76,3 +77,85 @@ def readMAAP(path=None):
     maap.index = pd.to_datetime(maap.index)
     
     return maap
+
+def readDMPS(path=None, flist=None, identifier=None):
+    ''' Function to read Nestor DMPS data
+
+    Takes either the argument path = path to data folder as a string
+    or flist = a list of paths for chosen data files as strings
+
+    Returns a dictionary with fields: 'time', 'Ntot_int', 'Ntot_cpc',
+                                      'dNdlogD', and 'diam'
+    '''
+    # Check if a path is given, else look for file list
+    if path is not None:
+        flist = glob2.glob(path+'*'+str(identifier)+'*_.sum')
+        flist.sort()
+    elif flist is not None:
+        flist.sort()
+    else:
+        print('You need to provide a path or a list of files...')
+    print(flist)
+    # Create lists
+    time = []
+    Ntot_int = []
+    Ntot_cpc = []
+    dNdlogD = []
+    diam = []
+
+    # # Main loop
+    for file in range(len(flist)):
+        # Read data file
+        df = pd.read_csv(flist[file], sep='\t', header=None)
+
+        # Check for the error with zeros at the end of the diameter array
+        if df.iloc[0, -1] == 0:
+            print('Excluding file: ', flist[file].split('/')[-1], 'because' +
+                  'the last bin diameter is zero')
+            # Wrtie excluded file to log
+            with open('log.txt', 'a') as f:
+                f.write('Excluding file: ' + flist[file].split('/')[-1] +
+                        ' because the last bin diameter is zero \n')
+            continue
+
+        # Check if the file has too many columns
+        if len(df.columns) > 40:
+            print('Excluding file: ', flist[file].split('/')[-1], 'because' +
+                  'it has more than 40 columns (not standard)')
+            # Wrtie excluded file to log
+            with open('log.txt', 'a') as f:
+                f.write('Excluding file: ' + flist[file].split('/')[-1] + ' because ' +
+                  'it has more than 40 columns (not standard)' + '\n')
+            continue
+
+        # Print name of data file
+        print(flist[file].split('/')[-1])
+
+        # Set the year to 2018
+        y = int(flist[file][-18:-14])-1
+        year = dt.datetime(y, 12, 31)
+        timestamp = [year + dt.timedelta(item) for item in df.iloc[1:, 0]]
+
+        # Append data to lists
+        time.append(pd.DataFrame(timestamp))
+        Ntot_int.append(pd.DataFrame(df.iloc[1:, 1].values, index=timestamp))
+        Ntot_cpc.append(pd.DataFrame(df.iloc[1:, 2].values, index=timestamp))
+        dNdlogD.append(pd.DataFrame(df.iloc[1:, 3:].values, index=timestamp,
+                                    columns=df.iloc[0, 3:].values))
+        diam.append(pd.DataFrame(np.tile(df.iloc[0, 3:].values,
+                                         (df.shape[0]-1, 1)), index=timestamp))
+
+    # Concatenate data into dataframes
+    time = pd.concat(time)
+    Ntot_int = pd.concat(Ntot_int)
+    Ntot_cpc = pd.concat(Ntot_cpc)
+    dNdlogD = pd.concat(dNdlogD)
+    diam = pd.concat(diam)
+
+    # Return data as a dictionary of pandas DataFrame objects
+    DMPS = {'time': time.reset_index(drop=True),
+            'Ntot_int': Ntot_int,
+            'Ntot_cpc': Ntot_cpc,
+            'dNdlogD': dNdlogD,
+            'diam': diam}
+    return DMPS
