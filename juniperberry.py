@@ -22,8 +22,24 @@ def qfig(x=10,y=5,x1=1,x2=1,n=1):
     
     return fig, pl
     
+def month_ticks(date1=None,date2=None,rotation=0):
     
+    plt.xticks((pd.date_range(date1,date2,freq='1M')+pd.to_timedelta('1d')),
+            (pd.date_range(date1,date2,freq='1M')+pd.to_timedelta('1d')).astype('str').str.slice(5,7)+'/'+\
+            (pd.date_range(date1,date2,freq='1M')+pd.to_timedelta('1d')).astype('str').str.slice(2,4),
+           rotation=rotation)
     
+def sel_rem(to_do='Sel',df=None,date1=None,date2=None):
+    
+    if to_do == 'Sel':
+        
+        df = df[(df.index > date1)|(df.index < date2)]
+    
+    if to_do == 'Rem':
+        
+        df = df[(df.index < date1)|(df.index > date2)]
+    
+    return df
         
         
         
