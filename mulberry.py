@@ -584,6 +584,8 @@ def class_time(df=None,time=None,lut=None,th=1):
     
     total        = df[df.Group != '']['count'].resample(time).sum()
     
+    total        = total.reindex(bottom.index,fill_value=0)
+    
     for i,Group in tqdm.tqdm(enumerate(np.sort(df[df['Group'] != ''].Group.unique()))):
         
         if ((df[df.Group == Group]['count'].resample(time).sum()/total)*1e2).max() > th:
@@ -608,7 +610,7 @@ def class_time(df=None,time=None,lut=None,th=1):
     plt.ylabel('Composition to \n Highly Fluorescent particles (%)')
         
         
-def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000):
+def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000,legend=True):
 
     df = df[df.Group != '']
     
@@ -652,8 +654,9 @@ def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000):
     
     plt.bar(0,0,label='Others',color='peachpuff')
     
-    
-    plt.legend(bbox_to_anchor =(1.025, -0.1),ncol=5,title='Classes:')
+    if legend == True:
+        
+        plt.legend(bbox_to_anchor =(1.025, -0.1),ncol=5,title='Classes:')
     
     plt.ylabel('Contribution to signal')
     
