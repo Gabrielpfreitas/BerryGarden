@@ -485,7 +485,7 @@ def create_gamma_file(path=None,path_gamma=None):
         
         
         
-def getparticles(path=None,gamma=None,ignore_coarse=False):
+def getparticles(path=None,gamma=None):
     
     cv = ['XE1_'+str(x) for x in range(1,9)]
     
@@ -497,7 +497,9 @@ def getparticles(path=None,gamma=None,ignore_coarse=False):
     
     for file in tqdm.tqdm(files):
         
-        fl_ = pd.read_hdf(file)[['XE1_'+str(x) for x in range(1,9)]]
+        raw = pd.read_hdf(file)
+        
+        fl_ = raw[['XE1_'+str(x) for x in range(1,9)]]
         
         fl_[cv] = fl_[cv]-gamma.iloc[:,16:24].mean().values
         
@@ -509,46 +511,36 @@ def getparticles(path=None,gamma=None,ignore_coarse=False):
         
         fl = fl.append(fl_)
         
-        if ignore_coarse == False:
-            
-            tc = tc.append(pd.read_hdf(file))[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']]
+        tc = tc.append(raw[['Size','AsymLR%','PeakMeanR','MeanR','Total','Measured']])
+        
+        del raw
     
     clear_output()
     
-    
     fl['count'] = 1
     
-    if ignore_coarse == False:
-            
-        tc['count'] = 1
-    
-    fl['Size']  = np.nan
-    
-    fl['PeakMeanR']  = np.nan
-    
-    fl['AsymLR%']  = np.nan
-
-    for file in tqdm.tqdm(files):
+    tc['count'] = 1
+ 
+    df = tc[tc.index.isin(fl.index)]
         
-        df = pd.read_hdf(file)[['Size','AsymLR%','PeakMeanR','MeanR','Measured','Total']]
+    fl.loc[df.index,'Size'] = df.loc[:,'Size']
         
-        df = df[df.index.isin(fl.index)]
+    fl.loc[df.index,'AsymLR%'] = df.loc[:,'AsymLR%']
         
-        fl.loc[df.index,'Size'] = df['Size']
+    fl.loc[df.index,'PeakMeanR'] = df.loc[:,'PeakMeanR']
         
-        fl.loc[df.index,'AsymLR%'] = df['AsymLR%']
+    fl.loc[df.index,'MeanR'] = df.loc[:,'MeanR']
         
-        fl.loc[df.index,'PeakMeanR'] = df['PeakMeanR']
+    fl.loc[df.index,'Measured'] = df.loc[:,'Measured']
         
-        fl.loc[df.index,'MeanR'] = df['MeanR']
-        
-        fl.loc[df.index,'Measured'] = df['Measured']
-        
-        fl.loc[df.index,'Total'] = df['Total']
+    fl.loc[df.index,'Total'] = df.loc[:,'Total']
     
     fl['Group'] = ''
     
+    del df
+    
     for i,channel in enumerate(cv):
+        
         fl.loc[fl[channel] > gamma.iloc[:,24:36].mean().values[i]-gamma.iloc[:,16:24].mean().values[i],'Group']  += 'ABCDEFGH'[i]
     
     clear_output()
