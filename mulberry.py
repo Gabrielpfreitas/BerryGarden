@@ -573,7 +573,7 @@ def create_lut(df=None):
     
     return {'lut':lut,'cmap':cmap}
         
-def class_time(df=None,time=None,lut=None,th=1):
+def class_time(df=None,time=None,lut=None,th=1,ylabel='Composition to \n Highly Fluorescent particles (%)'):
     
     #create bottom vector
     bottom        = df['count'].resample(time).sum()
@@ -607,7 +607,7 @@ def class_time(df=None,time=None,lut=None,th=1):
 
     plt.ylim(0,100)
 
-    plt.ylabel('Composition to \n Highly Fluorescent particles (%)')
+    plt.ylabel(ylabel)
         
         
 def class_size(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,th=1000,legend=True):
