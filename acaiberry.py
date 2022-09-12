@@ -37,13 +37,11 @@ def readEBAS(path=None):
         for l,name in enumerate(names):
             if nb == name:
                 if i >= 1:
-                    names[l] = name+'_'
-                    i = 0
-                    continue
+                    names[l] = name+str(i)#'_'
+#                     i = 0
+#                     continue
                 i=i+1
-    #
-    
-    
+
     
     df = pd.read_fwf(path,infer_nrows=300,skiprows=k,names=names)
     
