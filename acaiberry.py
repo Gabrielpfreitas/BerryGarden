@@ -6,7 +6,7 @@ import glob2
 import numpy as np
 import datetime as dt
 
-def readEBAS(path=None):
+def readEBAS(path=None,nrows=300):
 
     table = pd.read_table(path)
         
@@ -43,7 +43,7 @@ def readEBAS(path=None):
                 i=i+1
     print(reference)
     
-    df = pd.read_fwf(path,infer_nrows=300,skiprows=k,names=names)
+    df = pd.read_fwf(path,infer_nrows=nrows,skiprows=k,names=names)
     
     df = df.astype('float')
     
