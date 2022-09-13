@@ -127,43 +127,69 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
     
     cs = cs.replace(0.5,0)
     
-    CE = ((cs[1:]-cs[:-1].values)[(cs[1:]-cs[:-1].values)!=0]).dropna()
+    if cs.all() != True:
+        
+        CE = ((cs[1:]-cs[:-1].values)[(cs[1:]-cs[:-1].values)!=0]).dropna()
 
-    if len(CE[CE ==  1].index) > len(CE[CE == -1].index):
+        if len(CE[CE ==  1].index) > len(CE[CE == -1].index):
 
-        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  1].index)),columns=['S','E'])
-
-        CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
-
-        CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index
-
-    if len(CE[CE ==  1].index) < len(CE[CE == -1].index):
-
-        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
-
-        CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
-
-        CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
-
-    if len(CE[CE ==  1].index) == len(CE[CE == -1].index):
-
-        if CE[CE ==  1].index[0] < CE[CE == -1].index[0]:
-
-            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
+            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  1].index)),columns=['S','E'])
 
             CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
 
-            CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+            CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index
 
-        else:
+        if len(CE[CE ==  1].index) < len(CE[CE == -1].index):
 
-            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)+1),columns=['S','E'])
+            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
 
             CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
 
-            CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index    
+            CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+
+        if len(CE[CE ==  1].index) == len(CE[CE == -1].index):
+            
+            if CE[CE ==  1].index.empty:
+ 
+                CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
+
+                CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+                CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+            
+            else:
+                
+                if CE[CE ==  -1].index.empty:
+                    
+                    CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)+1),columns=['S','E'])
+
+                    CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+                    CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index    
+            
+                else:
+                    
+                    if CE[CE ==  1].index[0] < CE[CE == -1].index[0]:
+
+                        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
+
+                        CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+                        CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+
+                    else:
+
+                        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)+1),columns=['S','E'])
+
+                        CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+                        CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index    
 
 
-    CEt['D'] = CEt.E-CEt.S
+        CEt['D'] = CEt.E-CEt.S
+        
+    else:
+        
+        CEt = pd.DataFrame()
     
     return gcvi, CEt
