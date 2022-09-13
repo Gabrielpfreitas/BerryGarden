@@ -41,7 +41,7 @@ def readEBAS(path=None):
 #                     i = 0
 #                     continue
                 i=i+1
-
+    print(reference)
     
     df = pd.read_fwf(path,infer_nrows=300,skiprows=k,names=names)
     

@@ -7,6 +7,10 @@ import numpy as np
 
 def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
     
+    if enddate == None:
+        
+        enddate = startdate
+        
     dum_row = 7
     
     dum_row2 = 10
@@ -77,10 +81,12 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
         
         if resample != None:
             
-            df = df.resample(resample).median()
+            df_1 = df.loc[:,['visiblty','humidity']].resample(resample).median()
             
-        
-
+            df_2 = df.loc[:,'cloud'].resample(resample).max()
+            
+            df = df_1.join(df_2)
+            
         #ENRICHMENT FACTOR 
         
         file_list = glob2.glob(folder+'\\' + 'CVI*' + '.dat')
@@ -122,11 +128,42 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
     cs = cs.replace(0.5,0)
     
     CE = ((cs[1:]-cs[:-1].values)[(cs[1:]-cs[:-1].values)!=0]).dropna()
-    
-    CEt = pd.DataFrame(columns=['S','E'])
-    
-    CEt.S = CE[CE == 1].index; CEt.E = CE[CE == -1].index
-    
-    CEt['D'] = CE[CE == -1].index-CE[CE == 1].index
+
+    if len(CE[CE ==  1].index) > len(CE[CE == -1].index):
+
+        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  1].index)),columns=['S','E'])
+
+        CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+        CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index
+
+    if len(CE[CE ==  1].index) < len(CE[CE == -1].index):
+
+        CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
+
+        CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+        CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+
+    if len(CE[CE ==  1].index) == len(CE[CE == -1].index):
+
+        if CE[CE ==  1].index[0] < CE[CE == -1].index[0]:
+
+            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)),columns=['S','E'])
+
+            CEt.loc[:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+            CEt.loc[:len(CE[CE ==  -1].index),'E'] = CE[CE ==  -1].index
+
+        else:
+
+            CEt = pd.DataFrame(index=np.arange(len(CE[CE ==  -1].index)+1),columns=['S','E'])
+
+            CEt.loc[1:len(CE[CE ==  1].index),'S'] = CE[CE ==  1].index
+
+            CEt.loc[:len(CE[CE ==  -1].index)-1,'E'] = CE[CE ==  -1].index    
+
+
+    CEt['D'] = CEt.E-CEt.S
     
     return gcvi, CEt
