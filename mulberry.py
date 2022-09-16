@@ -230,7 +230,7 @@ def getconc(df=None,time=None,flow=None):
     conc = df['count'].resample(time).sum()
    
     #Calculate concentration accounting for sample/sheath flow and amount of time sampled
-    conc = conc/((0.315/flow)*(pd.to_timedelta(time).total_seconds()/60))
+    conc = conc/((0.165*flow)*(pd.to_timedelta(time).total_seconds()/60))
     
     #Account for loss of particles
     conc = conc*(df['Total'].resample(time).mean()/df['Measured'].resample(time).mean()) 

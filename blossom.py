@@ -6,7 +6,7 @@ import matplotlib.patheffects as pe
 import pandas as pd
 import numpy as np
 import glob2
-# import glob
+import math
 import tqdm
 import datetime as dt
 
@@ -22,5 +22,5 @@ import mulberry as mb
 from IPython.display import clear_output
 #Open console
 # %qtconsole
-# mpl.rc('font',family='consolas')
-# mpl.rc('font',size=14)
+mpl.rc('font',family='consolas')
+mpl.rc('font',size=14)
