@@ -40,7 +40,7 @@ def processMBS(path_raw=None, path_hdf=None, min_col = True, use_lut=None, dum_r
     
     print('Looking for files in '+path_raw)
 
-    files = glob2.glob(path_raw+'*.csv')
+    files = glob2.glob(path_raw+'*_'+'*.csv')
 
     if len(files) == 0:
         raise ValueError('No files found, check raw path and identifiers')
@@ -435,12 +435,13 @@ def hist_to_plot(df=None,color=None,bins=np.logspace(1.6,3.2)/100):
 
     x = a1[0]/(np.log10(bins[1:])-np.log10(bins[:-1]))
     
-    plt.step(bins[1:]+(bins[1:]-bins[:-1])/2,x/x.sum(),where='mid',color=color)
+    a2 = plt.step(bins[1:]+(bins[1:]-bins[:-1])/2,x/x.sum(),where='mid',color=color)
     
     counts, bins, bars = a1
     
     _ = [b.remove() for b in bars]
-
+    
+    return a2
         
         
 def create_gamma_file(path=None,path_gamma=None):
