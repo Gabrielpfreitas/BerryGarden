@@ -556,7 +556,10 @@ def pbaptree(df=None):
     pbap = df[['B' in Group for Group in df.Group]]
 
     #All those whose highest signal is B
-    pbap = pbap[pbap.loc[:,['XE1_'+str(x) for x in range(1,9)]].idxmax(axis=1) == 'XE1_2']
+    if pbap.empty == False:
+        pbap = pbap[pbap.loc[:,['XE1_'+str(x) for x in range(1,9)]].idxmax(axis=1) == 'XE1_2']
+    else:
+        pbap = pd.DataFrame()
     
     #
     return pbap
@@ -708,7 +711,9 @@ def corr_plot(corr=None,ax=None):
                plt.text(x=x,y=y,s=str(corr.loc[x,y])[0:4],fontsize=8,ha='center')
         k = k+1
     ax.spines['right'].set_visible(False)
+    
     ax.spines['bottom'].set_visible(False)
+    
     ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
     plt.xticks(rotation=90)
         
