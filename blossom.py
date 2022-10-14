@@ -24,4 +24,4 @@ from IPython.display import clear_output
 #Open console
 # %qtconsole
 mpl.rc('font',family='consolas')
-mpl.rc('font',size=14)
+mpl.rc('font',size=18)
