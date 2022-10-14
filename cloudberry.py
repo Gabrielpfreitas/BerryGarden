@@ -41,7 +41,7 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
         
         file_list.sort()
         
-        if file_list.empty == False:
+        if len(file_list) != 0:
             
             df = pd.DataFrame()
 
