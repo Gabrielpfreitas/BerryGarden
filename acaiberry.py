@@ -51,7 +51,7 @@ def readEBAS(path=None,nrows=300):
     
     df.endtime = pd.to_datetime(reference)+pd.to_timedelta(df.endtime.astype('str')+'D')
     
-    df.index = df.starttime+(df.starttime-df.endtime)/2
+    df.index = df.starttime+(df.endtime-df.starttime)/2
     
     return df
 
