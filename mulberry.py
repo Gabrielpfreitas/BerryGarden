@@ -717,7 +717,23 @@ def corr_plot(corr=None,ax=None):
     ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
     plt.xticks(rotation=90)
         
-        
+def getconc_using_total(df=None,time=None,flow=None,T=None):
+    
+    #Count the number of particles per time window
+    conc = df['count'].resample(time).sum()
+    
+    T = T['Total'].resample('1min').median()
+    
+    T[T >= 0] = 1
+    
+    T = T.resample(time).sum()
+    #Calculate concentration accounting for sample/sheath flow and amount of time sampled
+    conc = conc/((0.165*flow)*(T))
+    
+    #Account for loss of particles
+    conc = conc*(df['Total'].resample(time).mean()/df['Measured'].resample(time).mean()) 
+    
+    return conc        
         
         
         
