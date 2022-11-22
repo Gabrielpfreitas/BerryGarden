@@ -735,7 +735,46 @@ def getconc_using_total(df=None,time=None,flow=None,T=None):
     
     return conc        
         
+def class_time_limited(df=None,time=None,lut=None,ylabel='Composition to \n Highly Fluorescent particles (%)',classes=['B','BC','ABC','ABCD']):
+    
+    #create bottom vector
+    bottom        = df['count'].resample(time).sum()
+    
+    bottom.loc[:] = 0
+    
+    #create sum vector
+    
+    total        = df[df.Group != '']['count'].resample(time).sum()
+    
+    total        = total.reindex(bottom.index,fill_value=0)
+    
+    for i,Group in tqdm.tqdm(enumerate(classes)):
         
+            y = (df[df.Group == Group]['count'].resample(time).sum()/total)*1e2
+
+            y = y.replace(np.nan,0)
+
+            plt.bar(x=y.index,\
+                    height=y,\
+                    bottom=bottom,\
+                    color=lut['cmap'](lut['lut'].loc[Group].values[0]),\
+                    width=pd.to_timedelta(time),\
+                    align='edge')
+
+            bottom    = bottom + y    
+            
+    plt.bar(x=bottom[bottom != 0].index,
+            height=100-bottom[bottom != 0],
+            bottom=bottom[bottom != 0],
+            color='darkgrey',
+            width=pd.to_timedelta(time),
+            align='edge')
+            
+    plt.xlim(y.index[0],y.index[-1])
+
+    plt.ylim(0,100)
+
+    plt.ylabel(ylabel)
         
         
         
