@@ -821,8 +821,7 @@ def class_size_limited(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,cl
             height=100-bottom[bottom != 0],
             bottom=bottom[bottom != 0],
             color='darkgrey',
-            width=pd.to_timedelta(time),
-            align='edge')
+            width=np.diff(bins)[bottom != 0])
     
     if legend == True:
         
