@@ -777,6 +777,76 @@ def class_time_limited(df=None,time=None,lut=None,ylabel='Composition to \n High
     plt.ylabel(ylabel)
         
         
+def class_size_limited(df=None,lut=None,bins=np.logspace(1.8,3.3)/100,ax=None,classes=['B','BC','ABC','ABCD'],legend=True):
+
+    df = df[df.Group != '']
+    
+    pc = pd.DataFrame(index=bins[:-1]+(bins[1:]-bins[:-1])/2,columns=df.sort_values(by='Group').Group.unique())
+    
+    for i in tqdm.tqdm(range(len(pc.index))):
+    
+        for k in pc.columns:
+    
+            pc.loc[pc.index[i],k] = df[(np.digitize(df.Size,bins) == i)&(df.Group == k)]['count'].sum()
+    
+    pc_safe = pc.copy()
+    
+    pc = (pc.T/pc.sum(axis=1)).replace(np.nan,0)
+    
+    bottom = pc.iloc[0]
+
+    bottom.loc[:] = 0
+
+    if ax != None:
+        
+        ax.set_facecolor('peachpuff')
+
+    for i,Group in enumerate(classes):
+        
+        plt.bar(pc.loc[Group].index,\
+
+                height=pc.loc[Group].values,\
+
+                bottom=bottom,width=np.diff(bins),\
+
+                label=Group,\
+
+                color=lut['cmap'](lut['lut'].loc[Group].values[0]))  
+
+        bottom = bottom + pc.loc[Group].values
+
+    plt.xscale('log')
+    
+    plt.bar(x=bottom[bottom != 0].index,
+            height=100-bottom[bottom != 0],
+            bottom=bottom[bottom != 0],
+            color='darkgrey',
+            width=pd.to_timedelta(time),
+            align='edge')
+    
+    if legend == True:
+        
+        plt.legend(bbox_to_anchor =(1.025, -0.1),ncol=5,title='Classes:')
+    
+    plt.ylabel('Contribution to signal')
+    
+    plt.xlabel('Optical diameter (µm)',labelpad=0.5)
+
+    if ax != None:
+        
+        ax.tick_params('both',which='both',length=5)
+    
+    plt.xlim(0.95,15)
+
+    plt.ylim(0,1)
+    
+    if ax != None:
+        
+        box = ax.get_position()
+
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                     box.width, box.height * 0.9])
+        
         
         
         
