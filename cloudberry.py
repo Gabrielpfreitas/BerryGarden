@@ -48,7 +48,7 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
             for i,file in enumerate(file_list):
 
                 df1 = pd.read_csv(file, sep="\s+", skiprows=dum_row, usecols = ['HR:MN:SC', 'visiblty', 'cvi_stat',\
-                'compstat', 'vac_stat', 'blwrstat', 'humidity'])
+                'compstat', 'vac_stat', 'blwrstat', 'humidity','temperat'])
 
                 starttime = pd.to_datetime(times[k],format='%d/%m/%Y %H:%M:%S\n') 
 
@@ -83,7 +83,7 @@ def readCVI(path=None,startdate=None,enddate=None,EF=None,resample=None):
 
             if resample != None:
 
-                df_1 = df.loc[:,['visiblty','humidity']].resample(resample).median()
+                df_1 = df.loc[:,['visiblty','humidity','temperat']].resample(resample).median()
 
                 df_2 = df.loc[:,'cloud'].resample(resample).max()
 
