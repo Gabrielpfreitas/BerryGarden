@@ -523,6 +523,8 @@ def getparticles(path=None,gamma=None):
     tc['count'] = 1
  
     df = tc[tc.index.isin(fl.index)]
+    
+    df = df[~df.index.duplicated()]
         
     fl.loc[df.index,'Size'] = df.loc[:,'Size']
         
